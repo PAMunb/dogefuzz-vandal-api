@@ -1,10 +1,19 @@
-FROM tiangolo/uwsgi-nginx-flask:python3.8-alpine
+FROM python:3.5-alpine
 
-RUN apk --update add bash nano
+WORKDIR /app
 
-ENV STATIC_URL /static
-ENV STATIC_PATH /var/www/app/static
+ENV REPOSITORY_ZIP=vandal-master
 
-COPY ./requirements.txt /var/www/requirements.txt
+COPY . .
 
-RUN pip install -r /var/www/requirements.txt
+RUN unzip ${REPOSITORY_ZIP}.zip -d /tmp
+RUN mkdir /app/vandal
+RUN cp -r /tmp/${REPOSITORY_ZIP}/* /app/vandal
+RUN rm ${REPOSITORY_ZIP}.zip
+
+RUN pip install -r ./vandal/requirements.txt
+RUN pip install -r requirements.txt
+
+EXPOSE 3000
+
+CMD [ "python", "main.py"]
