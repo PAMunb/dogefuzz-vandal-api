@@ -3,6 +3,7 @@ Main API
 """
 import subprocess
 import os
+import sys
 import io
 import tempfile
 import uuid
@@ -22,9 +23,12 @@ def decompile():
     file_id = str(uuid.uuid4())
     with open(f"/tmp/{file_id}", "w", encoding="UTF-8") as file:
         file.write(body["source"])
-    
-    print("writing" + file.name)
+        file.flush()
 
+    contract_name = body["name"] if body.get("name") else "<>"    
+    print("Writing contract " + contract_name  + " to " + file.name)
+    sys.stdout.flush()
+    
     args = ["/app/vandal/bin/decompile", "-v", f"/tmp/{file_id}"]
     (std_out, std_err) = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()
 
@@ -37,7 +41,7 @@ def decompile():
     )
 
 @app.errorhandler(HTTPException)
-def handle_exception(e):
+def handleexception(e):
     """Return JSON instead of HTML for HTTP errors."""
     # start with the correct headers and status code from the error
     response = e.get_response()
